@@ -14,14 +14,14 @@ from chess_pieces_dataset import ChessPiecesDataset
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 
-import utils
+import model_chess_training.train_utils as train_utils
 import config
 import detection
 
 # Create datasets and data loaders for train, validation, and test sets
-train_dataset = ChessPiecesDataset(config.PATH_TO_DATASETS, utils.get_transform(True),  image_set='train')
-valid_dataset = ChessPiecesDataset(config.PATH_TO_DATASETS, utils.get_transform(False), image_set='valid')
-test_dataset  = ChessPiecesDataset(config.PATH_TO_DATASETS, utils.get_transform(False), image_set='test')
+train_dataset = ChessPiecesDataset(config.PATH_TO_DATASETS, train_utils.get_transform(True),  image_set='train')
+valid_dataset = ChessPiecesDataset(config.PATH_TO_DATASETS, train_utils.get_transform(False), image_set='valid')
+test_dataset  = ChessPiecesDataset(config.PATH_TO_DATASETS, train_utils.get_transform(False), image_set='test')
 
 train_dataloader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=4, collate_fn=detection.collate_fn)
 valid_dataloader = DataLoader(valid_dataset, batch_size=2, shuffle=False, num_workers=4, collate_fn=detection.collate_fn)

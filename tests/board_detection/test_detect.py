@@ -14,4 +14,4 @@ def test_detect_simple():
 
     pred = detection.detect_pieces(test_image)
     # check if all pieces and board is detected
-    assert len(set(filter(lambda x : x > 0.5, pred["scores"]))) == 33
+    assert len(list(filter(lambda x : x.score > 0.5, pred))) == 33

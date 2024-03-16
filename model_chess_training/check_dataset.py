@@ -6,10 +6,10 @@ from torchvision.io import read_image
 from torchvision.ops import box_convert
 from chess_pieces_dataset import ChessPiecesDataset
 
-import utils
+import model_chess_training.train_utils as train_utils
 import config
 
-train_dataset = ChessPiecesDataset(config.PATH_TO_DATASETS, utils.get_transform(True),  image_set='train')
+train_dataset = ChessPiecesDataset(config.PATH_TO_DATASETS, train_utils.get_transform(True),  image_set='train')
 
 # Set the index of the image you want to display
 idx = 123
