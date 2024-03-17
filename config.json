@@ -1,0 +1,4 @@
+{
+    "stockfish_path" : "C:\\Users\\Ja\\Downloads\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish-windows-x86-64-avx2.exe",
+    "model_path" : "model_chess_training\\trained_models\\model.pth"
+}

@@ -1,7 +1,17 @@
 
+import json
 import cv2
 import torch
 import board_detection as bd
+from stockfish import Stockfish
+
+
+with open('config.json') as fd:
+    config = json.load(fd)
+
+path_to_stockfish = config["stockfish_path"]
+path_to_model = config["model_path"]
+
 
 MODEL_PATH= "model_chess_training/trained_models/model.pth"
 bd.BoardElement(bd.Element(torch.tensor([100, 100, 200, 200]), 0, 0.9))
@@ -12,6 +22,9 @@ detection = bd.ModelDetect(MODEL_PATH, device)
 cap = cv2.VideoCapture(3)
 
 
+stockfish = Stockfish(path_to_stockfish)
+
+last_fen = ''
 
 while True:
     # Capture frame-by-frame
@@ -26,9 +39,24 @@ while True:
 
             board = bd.BoardElement(board_element)
             board.add_pieces(elements)
-            print(board.get_fen_notation())
 
-            detection
+            fen = board.get_fen_notation()
+            fen += ' w KQkq - 0 1'
+            if fen != last_fen:
+                print(fen)
+                last_fen = fen
+                try:
+                    if stockfish.is_fen_valid(fen):
+                        stockfish.set_fen_position(fen)
+                        fen = stockfish.get_fen_position()
+                        print(fen)
+                        # Get the best move from Stockfish
+                        best_move = stockfish.get_best_move()
+                        print("Best move:", best_move)
+                        eval = stockfish.get_evaluation()
+                        print("Eval:", eval)
+                except Exception as e:
+                    print(e)
         # Display the resulting frame
         cv2.imshow('frame', frame)
 
