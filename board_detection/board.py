@@ -52,17 +52,13 @@ class BoardElement:
                     if empty_count > 0:
                         fen_row += str(empty_count)
                         empty_count = 0
-                    fen_row += self._get_piece_fen(piece.label)
+                    fen_row += piece.label
             if empty_count > 0:
                 fen_row += str(empty_count)
             fen_notation.append(fen_row)
 
         return '/'.join(fen_notation)
 
-    def _get_piece_fen(self, label: int) -> str:
-        """Returns the FEN representation of a piece label."""
-        piece_labels = ['.', 'B', 'K', 'N', 'P', 'Q', 'R', 'b', 'board', 'k', 'n', 'p', 'q', 'r']
-        return piece_labels[label]
 
     def display_board(self):
         """Displays the board grid in a visually appealing format."""
@@ -72,5 +68,5 @@ class BoardElement:
                 if piece is None:
                     row_str += '. '
                 else:
-                    row_str += self._get_piece_fen(piece.label) + ' '
+                    row_str += piece.label + ' '
             print(row_str)

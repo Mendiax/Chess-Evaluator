@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import logging
 from typing import Iterable
 import cv2
 import numpy as np
@@ -8,7 +9,7 @@ import torch.utils
 @dataclass
 class Element:
     box : torch.tensor
-    label : int
+    label : str
     score : float
 
     def get_center(self) -> torch.Tensor:
@@ -45,9 +46,9 @@ class ModelDetect():
         Returns:
             Tensor: image as a tensor
         """
-        # Load the image using OpenCV
-        image_cv2 = cv2.cvtColor(image_cv2, cv2.COLOR_BGR2GRAY)
-        image_cv2 = cv2.cvtColor(image_cv2, cv2.COLOR_GRAY2RGB)
+        # # Load the image using OpenCV
+        # image_cv2 = cv2.cvtColor(image_cv2, cv2.COLOR_BGR2GRAY)
+        # image_cv2 = cv2.cvtColor(image_cv2, cv2.COLOR_GRAY2RGB)
 
         image_cv2_tensor = torch.from_numpy(image_cv2.transpose(2, 0, 1)).float() / 255.0
         return image_cv2_tensor
@@ -74,7 +75,7 @@ class ModelDetect():
         pred = predictions[0]
         # print(pred)
         elements = [
-            Element(box.long(), int(label), score)
+            Element(box.long(), self.CLASSES[int(label)], score)
             for box, label, score in zip(pred["boxes"], pred["labels"], pred["scores"])
             if score >= threshold
         ]
@@ -93,7 +94,7 @@ class ModelDetect():
             largest_size = float('-inf')
 
             for elem in elements:
-                if not elem.label == ModelDetect.CLASSES.index(element_type):
+                if not elem.label == element_type:
                     continue
                 # Calculate the size of the box
                 size = (elem.box[2] - elem.box[0]) * (elem.box[3] - elem.box[1])
@@ -121,15 +122,29 @@ class ModelDetect():
         """
         inside_elements = []
 
+        board_left = board.box[0]
+        board_top = board.box[1]
+        board_right = board.box[2]
+        board_bottom = board.box[3]
+
+        board_width = board_right - board_left
+        board_height = board_bottom - board_top
+
+        width_expansion = board_width * epsilon
+        height_expansion = board_height * epsilon
+
+        board_left = board_left - width_expansion
+        board_right = board_right + width_expansion
+        board_top = board_top - height_expansion
+        board_bottom = board_bottom + height_expansion
+
+
+
         # Define the boundaries of the board
-        board_left = board.box[0] - epsilon
-        board_top = board.box[1] - epsilon
-        board_right = board.box[2] + epsilon
-        board_bottom = board.box[3] + epsilon
 
         # Check if each element is inside the board
         for elem in elements:
-            if elem.label == ModelDetect.CLASSES.index('board'):
+            if elem.label == 'board':
                 continue
             x_min, y_min, x_max, y_max = elem.box
             if board_left <= x_min <= board_right and board_top <= y_min <= board_bottom \
@@ -138,24 +153,3 @@ class ModelDetect():
 
         return inside_elements
 
-    @staticmethod
-    def add_boxes(image : cv2.typing.MatLike, elements : Iterable[Element],  threshold=0.6):
-        """Add prediction squares with labels on image
-
-        Args:
-            image (cv2.typing.MatLike): image to modify
-            prediction (dict): dictionary with predictions
-        """
-
-        for elem in elements:
-            label_text = f"{ModelDetect.CLASSES[elem.label]}:{elem.score:.1f}"
-
-            if elem.score > threshold:
-                pred : torch.tensor = elem.box
-                p1 = (int(pred[0]), int(pred[1]))  # Convert coordinates to integers
-                p2 = (int(pred[2]), int(pred[3]))  # Convert coordinates to integers
-
-
-                cv2.rectangle(image, p1, p2, (0,0,255), 1)
-                text_pos = (int(pred[0]), int(pred[3]))
-                cv2.putText(image, label_text, text_pos, 2, 0.5, (0,0,255))
