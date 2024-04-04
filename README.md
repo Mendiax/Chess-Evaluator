@@ -1,5 +1,5 @@
 # Chess-Evaluator
-Computer Vision that detects chess boards and evaluates position using Stock Fish
+Computer Vision that detects chess boards and evaluates position using Stock Fish. Uses Faster R-CNN model with a ResNet-50-FPN backbone.
 
 
 
@@ -14,3 +14,7 @@ python3 model_chess_training/train_chess_detection.py
 ```sh
 python3 main.py
 ```
+
+## Example
+
+![alt text](docs\example.png "Example")

@@ -35,7 +35,7 @@ stockfish = Stockfish(path_to_stockfish)
 
 
 last_fen = ''
-
+display_text = ''
 loop_time = time.time()
 fps = 0
 while True:
